@@ -1,14 +1,14 @@
-#Lab 1
+# Lab 1
 Akshay Gopalkrishnan A15832133
 
 ---
-###Description of Lab
+### Description of Lab
 >This lab introduced us to microcontrollers, requiring us 
 use to utilize digital and serial communication in order to 
 >properly finish the challenges. Not only that, but I also learned
 >how I can use Arduino code to interact with a circuit using the microcontroller. 
 ---
-###Digital Communication Tutorial
+### Digital Communication Tutorial
     pinMode(LED_PIN, INPUT_PULLUP);
 >In digital communication, input and outputs are ideally 0s and 1s. However,
 >sometimes these values can be ambiguous, so Arduino provides us with a built in 
@@ -26,7 +26,7 @@ use to utilize digital and serial communication in order to
 >an LED. 
 >
 ---
-###Serial Communication Tutorial 
+### Serial Communication Tutorial 
     Serial.begin(9600);
     Serial.print("Hello world\n");
 
@@ -38,7 +38,7 @@ use to utilize digital and serial communication in order to
 > With a Serial Read, we can send data from the Serial Monitor on the computer
 > to the MCU. 
 ---
-###Challenge #1: Blinking LEDs
+### Challenge #1: Blinking LEDs
     void blink_with_delays(int delay_one, int delay_two)
     {
         digitalWrite(LED_PIN, HIGH);
@@ -58,7 +58,7 @@ use to utilize digital and serial communication in order to
 >the LED would be on and off, I used the equation 1000.0/(2*frequency). I then 
 >sent this number to the previous function blink_with_delays()
 ___
-###Challenge #2: Stopwatch
+### Challenge #2: Stopwatch
 > For this challenge, I had to program a stopwatch that could be started/stopped
 > by a button. Here are some of the essential variables and decision making of my program:
 
@@ -87,7 +87,7 @@ ___
 > check_times() method determined whether it was time to print the current time
 > or increment the counter variable. 
 ---
-### Challenge 3: 
+### Challenge 3: Timer
 > This challenge required us to make a timer. Every time the user pushed the button,
 > the time would increment by one second. Once the user did not push the button for three seconds, 
 > then the timer would start going down to 0 and then stop. 
