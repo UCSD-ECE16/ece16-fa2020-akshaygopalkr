@@ -9,6 +9,6 @@ void loop()
   String message = receiveMessage();
   if(message != "")
   {
-    writeDisplay(message,0,true);
+    writeDisplay(message.c_str(),0,true);
   }
 }
