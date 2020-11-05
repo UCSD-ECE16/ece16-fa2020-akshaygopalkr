@@ -129,7 +129,7 @@ if __name__ == "__main__":
                 az.add(int(m4))
 
                 if transform_method == l2_norm_calculation or transform_method == l1_norm_calculation:
-                    transform_x.add(transform_method(ax,ay,az))
+                    transform_x.add(transform_method(int(m1),int(m2),int(m3)))
                 elif transform_method != sample_difference :
                     transform_x.add(transform_method(ax))
                     transform_y.add(transform_method(ay))

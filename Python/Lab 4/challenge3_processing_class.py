@@ -2,18 +2,17 @@ from ECE16Lib.Communication import Communication
 from ECE16Lib.CircularList import CircularList
 from time import time
 import numpy as np
-import matplotlib as plt
-
+from matplotlib import pyplot as plt
+from time import sleep
 
 class Processing():
-    __num_samples = 100  # 2 seconds of data @ 50Hz
-    __refresh_time = 0.1  # update the plot every 0.1s (10 FPS)
+    __num_samples = 250  # 2 seconds of data @ 50Hz
+    __refresh_time = 0.5  # update the plot every 0.1s (10 FPS)
 
     # Thresholds for idle detection
-    __ax_idle_threshold = 2080
-    __ay_idle_threshold = 2085
-    __az_idle_threshold = 2625
-
+    __ax_idle_threshold = 1935
+    __ay_idle_threshold = 1918
+    __az_idle_threshold = 2430
 
     """
     Initializes the processing object and sets the field variables 
@@ -22,7 +21,6 @@ class Processing():
     """
     def __init__(self, transformation_method, port_name):
         self.comms = Communication(port_name, 115200)
-        self.comms.clear()  # just in case any junk is in the pipes
 
         __transform_dict = {"average acceleration": self.__average_value, "sample difference": self.__sample_difference,
                             "L2 norm": self.__l2_norm_calculation, "L1 norm": self.__l1_norm_calculation,
@@ -41,10 +39,10 @@ class Processing():
         self.az = CircularList([], self.__num_samples)
 
         # Set up the plotting
-        self.fig = plt.figure()
-        self.ax1 = self.fig.add_subplot(311)
-        self.ax2 = self.fig.add_subplot(312)
-        self.ax3 = self.fig.add_subplot(313)
+        fig = plt.figure()
+        self.ax1 = fig.add_subplot(311)
+        self.ax2 = fig.add_subplot(312)
+        self.ax3 = fig.add_subplot(313)
         self.graph_type = transformation_method
 
         # times to keep track of when
@@ -72,7 +70,7 @@ class Processing():
         self.ax2.plot(self.transform_y, 'b', self.ay, 'r')
         self.ax3.plot(self.transform_z, 'b', self.az, 'r')
         plt.show(block = False)
-        plt.pause(0.01)
+        plt.pause(0.0001)
 
     """
     Determines whether the device is inactive or not 
@@ -104,19 +102,23 @@ class Processing():
 
     """
     Computes the euclidean distance for the acceleration list
-    @:param acceleration_list: The acceleration over 5 seconds in either x,y,z direction
+    @:param x_acceleration: one sample of the x-acceleration
+    @:param y_acceleration: one sample of the y-acceleration
+    @:param z_acceleration: one sample of the z-acceleration
     @:return: A scalar which is the square root of the sum of each number in the 
     """
-    def __l2_norm_calculation(self):
-        return np.linalg.norm(np.array([self.ax, self.ay, self.az]))
+    def __l2_norm_calculation(self, x_acceleration, y_acceleration, z_acceleration):
+        return np.linalg.norm(np.array([x_acceleration, y_acceleration, z_acceleration]))
 
     """
     Computes the L1 norm for the acceleration lsit
-    @:param acceleration_list: The acceleration over 5 seconds in either x,y,z direction
+    @:param x_acceleration: one sample of the x-acceleration
+    @:param y_acceleration: one sample of the y-acceleration
+    @:param z_acceleration: one sample of the z-acceleration
     @:return: The sum of the absolute value of each acceleration value 
     """
-    def __l1_norm_calculation(self):
-        return np.linalg.norm(np.array([self.ax, self.ay, self.az]), ord=1)
+    def __l1_norm_calculation(self, x_acceleration, y_acceleration, z_acceleration):
+        return np.linalg.norm(np.array([x_acceleration, y_acceleration, z_acceleration]), ord=1)
 
     """
     Finds the max acceleration in one of the accelerations 
@@ -133,7 +135,7 @@ class Processing():
     @:param y_acceleration: the y-acceleration
     @:param z_acceleration: the z-acceleration
     """
-    def __record_acceleration(self,time,x_acceleration,y_acceleration,z_acceleration):
+    def __record_acceleration(self,time, x_acceleration ,y_acceleration, z_acceleration):
         # add the new values to the circular lists
         self.times.add(int(time))
         self.ax.add(int(x_acceleration))
@@ -143,46 +145,57 @@ class Processing():
     """
     Records the transformation value based on what transformation type the 
     instance uses 
+    @:param x_acceleration: one sample of the x-acceleration
+    @:param y_acceleration: one sample of the y-acceleration
+    @:param z_acceleration: one sample of the z-acceleration
     """
-    def __record_transformation(self):
+    def __record_transformation(self, x_acceleration, y_acceleration, z_acceleration):
+        # These if statements are used because some of these methods have different parameters and return types
         if self.__transformation_method == self.__l1_norm_calculation or self.__transformation_method == self.__l2_norm_calculation:
             norm_number = self.__transformation_method()
             self.transform_x.add(norm_number)
             self.transform_y.add(norm_number)
             self.transform_z.add(norm_number)
-        elif self.__transformation_method == self.__sample_difference():
+        # sets each transformation method to the sample difference array
+        elif self.__transformation_method == self.__sample_difference:
             self.transform_x = self.__transformation_method(self.ax)
             self.transform_y = self.__transformation_method(self.ay)
             self.transform_z = self.__transformation_method(self.az)
+        # This will either call average_value or maximum_acceleration
         else:
-            self.transform_x.add(self.__transform_method(self.ax))
-            self.transform_y.add(self.__transform_method(self.ay))
-            self.transform_z.add(self.__transform_method(self.az))
+            self.transform_x.add(self.__transformation_method(self.ax))
+            self.transform_y.add(self.__transformation_method(self.ay))
+            self.transform_z.add(self.__transformation_method(self.az))
 
 
     """
     Checks if the device has been idle for 5 seconds or if it's been active for 1 
     second. This will either cause the motor to buzz or another message displaying that the person has
     been active.
+    @:param current_time: The current time the program is at 
     """
     def __check_idle(self, current_time):
         # If it's been 5 seconds since the last time the person has been inactive
         if current_time - self.__last_idlecheck_time >= 5:
             # get the average acceleration over 5 seconds
-            average_x, average_y, average_z = self.__average_value(self.ax, self.ay, self.az)
+            average_x = self.__average_value(self.ax)
+            average_y = self.__average_value(self.ay)
+            average_z = self.__average_value(self.az)
             print(average_x, ",", average_y, ",", average_z)
             self.__last_idlecheck_time = current_time
             # if the device has been idle for 5 seconds, buzz the motor
             if self.__is_inactive(average_x, average_y, average_z):
-                idle_state = True
+                self.__idle_state = True
                 self.comms.send_message("Buzz motor")
             else:
-                idle_state = False
+                self.__idle_state = False
         # If the person has been inactive but has become active for 1 second
-        if idle_state and current_time - self.__last_active_time >= 1:
+        if self.__idle_state and current_time - self.__last_active_time >= 1:
             self.__last_active_time = current_time
             # get the average values for the last 1 second
-            average_x, average_y, average_z = self.__average_value(self.ax[200:], self.ay[200:], self.az[200:])
+            average_x = self.__average_value(self.ax[200:])
+            average_y = self.__average_value(self.ay[200:])
+            average_z = self.__average_value(self.az[200:])
             if not self.__is_inactive(average_x, average_y, average_z):
                 print("Active accelerations: ", average_x, average_y, average_z)
                 self.__last_idlecheck_time = current_time  # this ensures that the person must be inactive for 5 seconds after their activity
@@ -193,6 +206,8 @@ class Processing():
     acceleration values and checking whether the device has been inactive or not. 
     """
     def run(self):
+        self.comms.clear()  # just in case any junk is in the pipes
+        self.comms.send_message("wearable")  # begin sending data
         try:
             previous_time = 0
             while (True):
@@ -204,7 +219,7 @@ class Processing():
                         continue
                     # Record the acceleration and transformation
                     self.__record_acceleration(m1,m2,m3,m4)
-                    self.__record_transformation()
+                    self.__record_transformation(m2,m3,m4)
                     current_time = time()
                     if current_time - previous_time > self.__refresh_time:
                         previous_time = current_time
@@ -214,8 +229,11 @@ class Processing():
         except(Exception, KeyboardInterrupt) as e:
             print(e)  # Exiting the program due to exception
         finally:
+            print("Closing Connection")
             self.comms.send_message("sleep")  # stop sending data
             self.comms.close()
+            sleep(1)
 
-processing_unit = Processing("average acceleration", "/dev/cu.usb.serial-1410")
+processing_unit = Processing("average acceleration", "/dev/cu.AkshayBluetooth-ESP32SPP")
 processing_unit.run()
+

@@ -5,7 +5,9 @@ import numpy as np
 
 """
 Computes the average value for an axis
-@:param acceleration_list: The acceleration over 5 seconds in either x,y,z direction
+@:param ax: The acceleration over 5 t seconds in the x-direction
+@:param ay: The acceleration over 5 t seconds in the y-direction
+@:param az: The acceleration over 5 t seconds in the z-direction
 @:return: A scalar which is the average from the acceleration list 
 """
 def average_value(ax,ay,az):
