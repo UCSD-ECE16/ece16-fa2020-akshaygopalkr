@@ -9,7 +9,7 @@ void setup() {
   setupAccelSensor();
   setupCommunication();
   setupDisplay();
-  setupMotor();
+  //setupMotor();
 }
 
 void loop() {

@@ -33,7 +33,7 @@ class Communication:
     Close Serial connection. Wait 0.5s to allow commands to finish executing
     '''
     def close(self):
-        sleep(0.5)
+        sleep(1)
         self.__ser.close()
 
     '''
