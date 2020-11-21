@@ -20,6 +20,7 @@ def detect_thresholds(filtered, peaks):
     peak_std = np.std(np.array(filtered[peaks]))
     thresh_low = peak_avg - (2.5 * peak_std)
     thresh_high = peak_avg + (2.5 * peak_std)
+    print(thresh_low, thresh_high)
     return thresh_low, thresh_high
 
 """
@@ -33,8 +34,7 @@ def collect_samples():
   ax = CircularList([], num_samples)
   ay = CircularList([], num_samples)
   az = CircularList([], num_samples)
-
-  comms = Communication("/dev/cu.usbserial-1410", 115200)
+  comms = Communication("/dev/cu.ag-ESP32SPP", 115200)
   try:
     comms.clear() # just in case any junk is in the pipes
     # wait for user to start walking before starting to collect data
@@ -75,15 +75,16 @@ Gets user data for 10 seconds and then processes this
 data to find good upper and lower thresholds for 
 step detection
 @:return the lower and upper threshold 
+
 """
 def calibrate_thresholds():
     data = collect_samples()
     ax = data[:, 1]
     ay = data[:, 2]
     az = data[:, 3]
-    ped = Pedometer(500, 50, [])
-    ped.add(ax, ay, az)
-    _, peaks, filtered = ped.process()
+    ped_calibration = Pedometer(500, 50, [])
+    ped_calibration.add(ax, ay, az)
+    _, peaks, filtered = ped_calibration.process()
     return detect_thresholds(filtered, peaks)
 
 
@@ -94,12 +95,14 @@ if __name__ == "__main__":
   threshold_time = 5
   num_steps = 0
   ped = Pedometer(num_samples, fs, [])
-  low_thresh, high_thresh = calibrate_thresholds()
+  comms = Communication("/dev/cu.ag-ESP32SPP", 115200)
+  low_thresh, high_thresh = calibrate_thresholds(comms)
   ped.set_thresholds(low_thresh,high_thresh)
-  comms = Communication("/dev/cu.usbserial-1410", 115200)
   comms.clear()                   # just in case any junk is in the pipes
+  sleep(3)
   comms.send_message("wearable")  # begin sending data
   print("Ready!")
+  # Live data
   try:
     previous_time = time()
     while(True):
@@ -123,6 +126,8 @@ if __name__ == "__main__":
             comms.send_message("Step count: " + str(steps))
             # plt.cla()
             # plt.plot(filtered)
+            # plt.plot(low_thresh, "b--")
+            # plt.plot(high_thresh, "b--")
             # plt.title("Step Count: %d" % steps)
             # plt.show(block=False)
             # plt.pause(0.001)

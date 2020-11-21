@@ -22,7 +22,7 @@
  */
 void setupCommunication() {
   #if USE_BT
-    Ser.begin("Akshay Bluetooth"); // any unique name for BT
+    Ser.begin("ag"); // any unique name for BT
   #else
     Ser.begin(115200);
   #endif

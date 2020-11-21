@@ -10,10 +10,13 @@ void setup() {
   setupCommunication();
   setupDisplay();
   //setupMotor();
+  
 }
 
 void loop() {
   String command = receiveMessage();
+  String message = "bye";
+  writeDisplay(message.c_str(), 0, true);
   if(command == "sleep")
     sending = false;
   else if(command == "wearable")
