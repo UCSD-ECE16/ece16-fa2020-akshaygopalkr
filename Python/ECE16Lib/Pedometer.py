@@ -92,5 +92,5 @@ class Pedometer:
   """
   def reset(self):
     self.__steps = 0
-    self.__l1.clear()
-    self.__filtered = np.zeros(self.__num_samples)
+    #self.__l1.clear()
+    #self.__filtered = np.zeros(self.__num_samples)

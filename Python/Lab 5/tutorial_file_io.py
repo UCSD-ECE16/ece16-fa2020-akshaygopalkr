@@ -26,7 +26,7 @@ def collect_samples():
   ay = CircularList([], num_samples)
   az = CircularList([], num_samples)
 
-  comms = Communication("/dev/cu.AkshayBluetooth-ESP32SPP", 115200)
+  comms = Communication("/dev/cu.ag-ESP32SPP", 115200)
   try:
     comms.clear() # just in case any junk is in the pipes
     # wait for user to start walking before starting to collect data

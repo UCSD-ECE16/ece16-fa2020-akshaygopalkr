@@ -38,6 +38,7 @@ void loop() {
   {
     writeDisplay(command.c_str(), 0, true);
   }
+  // Send the ppg data and time to the Python Code
   if(sending && sampleSensors()) 
   {
     String response = String(sampleTime) + ",";
