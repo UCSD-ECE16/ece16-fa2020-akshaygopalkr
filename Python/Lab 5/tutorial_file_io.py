@@ -89,8 +89,23 @@ if __name__ == "__main__":
 
   # Plot the data
   plt.figure()
-  plt.plot(t, l1)
-  plt.title("L1-Norm of Acceleration")
+  plt.subplot(3,1,1)
+  plt.plot(t, ax)
+  plt.title("X-acceleration")
   plt.xlabel("seconds")
-  plt.ylabel("|ax|+|ay|+|az|")
+  plt.ylabel("ax")
+
+  plt.subplot(3,1,2)
+  plt.plot(t, ay)
+  plt.title("Y-acceleration")
+  plt.xlabel("seconds")
+  plt.ylabel("ay")
+
+  plt.subplot(3,1,3)
+  plt.plot(t, az)
+  plt.title("Z-acceleration")
+  plt.xlabel("seconds")
+  plt.ylabel("az")
+
   plt.show()
+

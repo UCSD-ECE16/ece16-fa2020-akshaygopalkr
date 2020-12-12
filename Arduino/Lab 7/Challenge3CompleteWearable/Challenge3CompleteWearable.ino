@@ -7,6 +7,8 @@ int ppg = 0;        // PPG from readPhotoSensor() (in Photodetector tab)
 int sampleTime = 0; // Time of last sample (in Sampling tab)
 bool sending;
 
+
+
 unsigned long last_buzzed = millis();
 bool buzz = false;
 /*

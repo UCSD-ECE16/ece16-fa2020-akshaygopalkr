@@ -13,7 +13,7 @@ if __name__ == "__main__":
   ay = CircularList([], num_samples)
   az = CircularList([], num_samples)
 
-  comms = Communication("/dev/cu.usbserial-1410", 115200)
+  comms = Communication("/dev/cu.ag-ESP32SPP", 115200)
   comms.clear()                   # just in case any junk is in the pipes
   comms.send_message("wearable")  # begin sending data
   fig = plt.figure()
